@@ -1,3 +1,3 @@
 import os
 import sys
-print(round(os.path.getsize("/home/usre-dev/Desktop/diyOS/"+sys.argv[1])/512))
+print(round(os.path.getsize("./"+sys.argv[1])/512), end='')
