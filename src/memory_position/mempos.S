@@ -13,7 +13,7 @@
 %define loader_stack_size loader_mem_position - 0x500	;500bytes of memory should be enought for the stack 
 														;of the loader(first convincial memory starts from 0x500)
 %define loader_sect_offset 0x1
-%define loader_sect_size 0x1 							;as the loader becomes larger, this value may increase
+%define loader_sect_size 0x3 							;as the loader becomes larger, this value may increase
 														;loader_sect_size = roundup(loader_size/512)
 %define video_mem_position 0xa0000
 %define svga_col 0x5a0		;1440

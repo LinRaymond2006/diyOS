@@ -11,7 +11,6 @@ section loader vstart=loader_mem_position
 	jmp start
 	%include "src/memory_position/mempos.S"
 	%include "src/init/gdt_attr_x86p.S"
-	%include "src/boot/lib_x86r/main.S"
 
 	;;;;;;;;;;;;;;;;;;following are global descriptor;;;;;;;;;;;;;;;;;;
 	;   .----------------.  .----------------.  .----------------.    ;
@@ -51,17 +50,37 @@ section loader vstart=loader_mem_position
 	gdt_pointer dw gdt_limit
 				dd gdt_base
 
+	detect_svga_support:
+		mov ax, 0x4f02
+		mov bx, 0x4180
+		int 0x10
+		cmp ax, 0x004f
+		jnz shutdown_x86r
+		ret
+	shutdown_x86r:
+		mov ax, 0x1000
+		mov ax, ss
+		mov sp, 0xf000
+		mov ax, 0x5307
+		mov bx, 0x0001
+		mov cx, 0x0003
+		int 0x15
 	start:
-		call enA20_fastgate
+		jmp $
+		call detect_svga_support
+		in al, 0x92
+		or al, 00000010b
+		out 0x92, al
 		lgdt [gdt_pointer]
 		mov eax, cr0
 		or eax, 0x00000001
 		mov eax, cr0
 		jmp code_selector:pmode_entry
-
+		
 
 	[bits 32]
 	pmode_entry:
+		;do not modify following
 		mov ax, data_selector
 		mov ds, ax
 		mov es, ax
@@ -69,4 +88,8 @@ section loader vstart=loader_mem_position
 		mov esp, p_loader_stack_position
 		mov ax, video_selector
 		mov gs, ax
+
+		;codes here
+		
+
 		jmp $
