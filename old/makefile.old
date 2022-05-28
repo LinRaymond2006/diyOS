@@ -1,0 +1,32 @@
+nasmbin=nasm -f bin
+nasmelf=nasm -f elf
+src=src/
+obj=.obj/
+build=build/
+kit=.kit/
+zero=hdimages/HD.img
+tmp_img=build/HD.img
+log=build/make.log
+kernel_seek=0
+#block_size_of=$(shell python3 $(kit)get_fileblock.py path_to_the_file)
+defualt:
+	rm -rf $(build)* >> $(log)
+	rm -rf $(obj)* >> $(log)
+	$(nasmbin) $(src)boot/main.S -o $(obj)main.bin >> $(log)
+	$(nasmbin) $(src)init/loader.S -o $(obj)loader.bin >> $(log)
+#	compile kernel to kernel.bin here
+	cp $(zero) $(build)HD.img >> $(log)
+	dd if=$(obj)main.bin of=$(tmp_img) bs=512 count=1 conv=notrunc >> $(log)
+	dd if=$(obj)loader.bin of=$(tmp_img) bs=512 seek=1 conv=notrunc >> $(log)
+#	$(kernel_seek)=$(shell python3 $(kit)get_fileblock.py $(obj)kernel.bin)+1
+#	dd if=$(obj)kernel.bin of=$(tmp_img) bs=512 seek=$(kernel_seek) conv=notrunc
+
+	echo ***done*** >> $(log)
+
+#test:
+#	qemu-system-i386 -drive format=raw,file=build/test.disk
+clean:
+	rm -rf $(build)* >> $(log)
+	rm -rf $(obj)* >> $(log)
+lnx_setup_env:
+	sudo apt install nasm gcc qemu-system* python3 python3-venv python3-pip >> $(log)

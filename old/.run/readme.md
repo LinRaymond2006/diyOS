@@ -1,0 +1,1 @@
+run bochs from home root directory of the project, or "file not founded" error will be throwed!
